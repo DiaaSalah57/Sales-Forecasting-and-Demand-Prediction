@@ -25,16 +25,14 @@ import mlflow
 import mlflow.pyfunc
 from pathlib import Path
 
-# Absolute path to this script's own folder -- guarantees the same
-# mlflow.db is used no matter what directory the terminal is in when run.
+
 BASE_DIR = Path(__file__).resolve().parent
 DEFAULT_TRACKING_URI = f"sqlite:///{(BASE_DIR / 'mlflow.db').as_posix()}"
 mlflow.set_tracking_uri(os.getenv("MLFLOW_TRACKING_URI", DEFAULT_TRACKING_URI))
 
-# ---- EDIT THESE THREE THINGS FOR YOUR REAL MODEL ----
-MODEL_PATH = "E:\\Depi\\final project\\docker files (1)\\models\\rossmann_sales_model.pkl"  # path to your existing pickle file
+MODEL_PATH = "E:\\Depi\\final project\\docker files (1)\\models\\rossmann_sales_model.pkl"  
 
-MODEL_PARAMS = {                          # the best params found by your search (not the whole grid)
+MODEL_PARAMS = {                         
     "n_estimators": 400,
     "max_depth": 22,
     "min_samples_split": 5,
@@ -42,14 +40,13 @@ MODEL_PARAMS = {                          # the best params found by your search
     "max_features": "sqrt",
 }
 
-MODEL_METRICS = {                         # your real evaluation results
+MODEL_METRICS = {                      
     "rmse": 987.696,
     "mae": 668.378,
     "mape": 19.918,
     "mse": 975543.148,
     "R2": 0.899,
 }
-# ------------------------------------------------------
 
 EXPERIMENT_NAME = "sales-forecasting"
 REGISTERED_MODEL_NAME = "sales-forecast-model"
@@ -66,7 +63,6 @@ class SalesForecastWrapper(mlflow.pyfunc.PythonModel):
         self.feature_cols = bundle["feature_cols"]
 
     def predict(self, context, model_input):
-        # model_input arrives as a pandas DataFrame from the API
         X = model_input[self.feature_cols]
         X_scaled = self.scaler.transform(X)
         return self.model.predict(X_scaled)
@@ -75,15 +71,12 @@ class SalesForecastWrapper(mlflow.pyfunc.PythonModel):
 mlflow.set_experiment(EXPERIMENT_NAME)
 
 with mlflow.start_run(run_name="initial-model-registration") as run:
-    # Log parameters (what settings produced this model)
     for key, value in MODEL_PARAMS.items():
         mlflow.log_param(key, value)
 
-    # Log metrics (how good it is)
     for key, value in MODEL_METRICS.items():
         mlflow.log_metric(key, value)
 
-    # Log and register the wrapped model, bundling the original .pkl as an artifact
     mlflow.pyfunc.log_model(
         artifact_path="model",
         python_model=SalesForecastWrapper(),
