@@ -1,18 +1,7 @@
-"""
-STEP 4b: Backtest -- populate monitoring logs with real held-out data.
 
-This takes rows from your actual time-series validation set (features +
-real Sales), sends each row's features through the live API to get a
-prediction, and logs BOTH the prediction and the real actual sales value
-under the same timestamp. This gives 4_monitor.py real data to compare
-against instead of made-up numbers.
+#STEP 4b: Backtest -- populate monitoring logs with real held-out data.
 
-PREREQUISITE: the API must already be running in another terminal:
-    uvicorn 2_app:app --reload --port 8000
 
-Run this with:
-    python 5_backtest.py
-"""
 
 import json
 import os
@@ -27,7 +16,7 @@ API_URL = "http://localhost:8000/predict"
 PREDICTIONS_LOG = BASE_DIR / "logs" / "predictions_log.jsonl"
 ACTUALS_FILE = BASE_DIR / "logs" / "actual_sales.csv"
 
-N_SAMPLES = 300  # how many rows to backtest -- spread evenly across the full date range
+N_SAMPLES = 300 
 
 FEATURE_COLS = [
     "Promo", "Promo2Active", "StateHoliday", "SchoolHoliday",
@@ -52,14 +41,12 @@ def main():
     df["Date"] = pd.to_datetime(df["Date"])
     df = df.sort_values("Date").reset_index(drop=True)
 
-    # Sample N rows spread evenly across the whole dataset rather than just the start
     step = max(len(df) // N_SAMPLES, 1)
     sample = df.iloc[::step].head(N_SAMPLES).copy()
     print(f"Backtesting {len(sample)} rows out of {len(df)} total...")
 
     os.makedirs(BASE_DIR / "logs", exist_ok=True)
 
-    # Warm-up check: make sure the API is actually up before firing 300 requests at it
     try:
         health = requests.get("http://localhost:8000/", timeout=5)
         health.raise_for_status()
@@ -74,7 +61,6 @@ def main():
     failures = 0
 
     for _, row in sample.iterrows():
-        # Build the payload, sending real booleans for flag columns
         payload = {}
         for col in FEATURE_COLS:
             val = row[col]
@@ -105,12 +91,10 @@ def main():
             "actual_sales": row["Sales"],
         })
 
-    # Append predictions to the existing JSONL log
     with open(PREDICTIONS_LOG, "a") as f:
         for entry in predictions_out:
             f.write(json.dumps(entry) + "\n")
 
-    # Write/overwrite the actuals CSV with these backtested rows
     actuals_df = pd.DataFrame(actuals_out)
     actuals_df.to_csv(ACTUALS_FILE, index=False, encoding="utf-8")
 
