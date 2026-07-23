@@ -1,4 +1,4 @@
-STEP 4: Monitor model performance over time.
+#STEP 4: Monitor model performance over time.
 
 
 
@@ -73,18 +73,11 @@ def compute_drift():
 
 
 def send_alert(mape):
-    # Replace this with a real notification: email, Slack webhook, etc.
     print("=" * 50)
     print(f"ALERT: Model drift detected. MAPE = {mape:.2%}")
     print(f"   Threshold was {ALERT_THRESHOLD_MAPE:.2%}. Consider retraining.")
     print("=" * 50)
-    # Example Slack webhook (uncomment and fill in your webhook URL):
-    # import requests
-    # requests.post(
-    #     "https://hooks.slack.com/services/XXXX/XXXX/XXXX",
-    #     json={"text": f"Sales model MAPE hit {mape:.2%} -- retraining recommended."}
-    # )
-
+  
 
 if __name__ == "__main__":
     compute_drift()
