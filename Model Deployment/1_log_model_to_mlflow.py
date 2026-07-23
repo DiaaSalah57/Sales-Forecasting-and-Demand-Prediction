@@ -1,23 +1,3 @@
-"""
-STEP 1: Register your existing model with MLflow.
-
-Your .pkl file is a DICT bundling three things together:
-  - 'model'        the trained RandomForestRegressor
-  - 'scaler'       a fitted scaler used to preprocess features before predicting
-  - 'feature_cols' the exact list/order of columns the model expects
-
-MLflow needs a single "python_function" flavored model to serve predictions,
-so we wrap all three pieces in a small custom class (SalesForecastWrapper)
-that knows how to: take raw input -> select the right columns -> scale them
--> run .predict() -> return the result. This is what gets registered.
-
-Run it with:
-    python 1_log_model_to_mlflow.py
-
-Then view results with:
-    mlflow ui --backend-store-uri sqlite:///mlflow.db --workers 1
-    (open http://localhost:5000 in your browser)
-"""
 
 import os
 import joblib
