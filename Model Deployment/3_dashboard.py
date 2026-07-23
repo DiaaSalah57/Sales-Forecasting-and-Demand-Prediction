@@ -1,17 +1,6 @@
-"""
-STEP 3: Interactive dashboard.
+#STEP 3: Interactive dashboard.
 
-Make sure the API (2_app.py) is already running first, then run:
-    streamlit run 3_dashboard.py
 
-This opens a browser page at http://localhost:8501
-
-Note: this dashboard exposes every raw feature the model needs, since your
-model expects fully engineered inputs (lags, rolling stats, etc.) rather than
-simple fields like "date". In a production setup, these would typically be
-computed automatically from a database of historical sales -- for now, enter
-them directly to test predictions.
-"""
 
 import streamlit as st
 import requests
